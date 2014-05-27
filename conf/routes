@@ -38,6 +38,9 @@ PUT           /api/conferences/:id/owners                     controllers.api.Co
 GET           /api/conferences/:id/owners                     controllers.api.Conferences.getPermissions(id: String)
 
 # Abstract interface
+#
+GET           /api/abstracts/by-doi/:doi                      controllers.api.Abstracts.getByDoi(doi: String)
+
 GET           /api/abstracts/:id                              controllers.api.Abstracts.get(id: String)
 PUT           /api/abstracts/:id                              controllers.api.Abstracts.update(id: String)
 DELETE        /api/abstracts/:id                              controllers.api.Abstracts.delete(id: String)

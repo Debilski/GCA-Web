@@ -142,6 +142,7 @@ class AbstractService(figPath: String)(implicit val emp: EntityManagerProvider) 
     }
   }
 
+
   /**
    * Return an abstract with a certain id, that is accessible for an account.
    * The abstract doesnt need to be published if the account has appropriate
@@ -182,6 +183,65 @@ class AbstractService(figPath: String)(implicit val emp: EntityManagerProvider) 
       throw new IllegalAccessException("No permissions for abstract with uuid = " + abstr.uuid)
 
     abstr
+  }
+
+  /**
+   * Return the uuid of an abstract by doi.
+   *
+   * @param doi The doi of the abstract.
+   *
+   * @return The first abstract with the specified doi.
+   *
+   * @throws NoResultException If no abstract was found
+   */
+  def getUUIDByDoi(doi: String) : String = {
+    dbQuery { em =>
+      val queryStr =
+        """SELECT DISTINCT a FROM Abstract a
+           WHERE a.doi = :doi
+           """
+
+      val query: TypedQuery[Abstract] = em.createQuery(queryStr, classOf[Abstract])
+      query.setMaxResults(1)
+      query.setParameter("doi", doi)
+      query.getSingleResult.uuid
+    }
+  }
+
+  /**
+   * Return a published abstract by doi.
+   *
+   * @param doi The doi of the abstract.
+   *
+   * @return The abstract with the specified doi.
+   *
+   * @throws NoResultException If the conference was not found
+   */
+  def getByDoi(doi: String) : Abstract = get(getUUIDByDoi(doi))
+
+  /**
+   * Return an abstract with a certain doi, that is accessible for an account.
+   * The abstract doesnt need to be published if the account has appropriate
+   * access.
+   *
+   * @param doi      The doi of the abstract.
+   * @param account The account who wants to request the abstract.
+   *
+   * @return The abstract with the specified doi.
+   *
+   * @throws EntityNotFoundException If the account does not exist
+   * @throws IllegalAccessException if not accessible
+   * @throws NoResultException If was not found
+   */
+
+  def getOwnByDoi(doi: String, account: Account) : Abstract = try {
+    val uuid = getUUIDByDoi(doi)
+    getOwnByDoi(uuid, account)
+  } catch {
+    case _: EntityNotFoundException =>
+      throw new EntityNotFoundException("Unable to find account with doi = " + doi)
+    case _: IllegalAccessException =>
+      throw new IllegalAccessException("No permissions for abstract with doi = " + doi)
   }
 
   /**

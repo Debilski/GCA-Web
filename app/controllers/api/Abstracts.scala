@@ -170,6 +170,26 @@ object Abstracts extends Controller with  GCAAuth {
   }
 
   /**
+   * An abstract info by id.
+   *
+   * @param id The id of the abstract.
+   *
+   * @return An abstract as JSON / abstract page.
+   */
+  def getByDoi(doi: String) = AccountAwareAction(isREST = true) { implicit request =>
+    Logger.debug(s"Getting abstract with doi: [$doi]")
+
+    val abstracts = AbstractService()
+
+    val abs = request.user match {
+      case Some(user) => abstracts.getOwnByDoi(doi, user)
+      case _          => abstracts.getByDoi(doi)
+    }
+
+    Ok(Json.toJson(abs)).withHeaders(LAST_MODIFIED -> rfcDateFormatter.print(abs.mtime))
+  }
+
+  /**
    * Set permissions on the abstract.
    *
    * @return a list of updated permissions (accounts) as JSON

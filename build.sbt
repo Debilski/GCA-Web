@@ -14,3 +14,5 @@ libraryDependencies ++= Seq(
   "org.eclipse.persistence" % "org.eclipse.persistence.jpa" % "2.5.1",
   "org.postgresql" % "postgresql" % "9.3-1100-jdbc4"
 )
+
+javacOptions in Compile ++= Seq("-source", "1.7", "-target", "1.7")
